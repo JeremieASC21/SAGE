@@ -1,16 +1,13 @@
 import requests
 
-#change API key
-
-SCOUT_API_KEY = "YOUR_SCOUT_API_KEY"
+SCOUT_API_KEY = "secret_-DrRVr2LhcZjgjflld_UeGe5Xc4hnma-XEyWbBYYavI"
 SCOUT_ENDPOINT = "https://api.scoutos.ai/v1/query"
 
-# Example: multiple relevant collections in Scout
+# Use the actual names from your Scout dashboard
 COLLECTIONS = [
-    "study_abroad_opportunities",
-    "international_internships",
-    "domestic_internships",
-    "funding_and_scholarships"
+    "Study Abroad",
+    "Internship",
+    "Usage"
 ]
 
 headers = {
@@ -31,4 +28,5 @@ def ask_scout(question):
         return f"[Error contacting ScoutOS: {response.text}]"
 
     data = response.json()
+
     return data.get("answer", "Sorry, I couldn’t find anything related to that.")

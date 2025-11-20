@@ -5,13 +5,12 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("templates/index.html")
+    return render_template("index.html")  # FIXED
 
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message")
 
-    # Query ScoutOS
     bot_reply = ask_scout(user_message)
 
     return jsonify({"reply": bot_reply})
