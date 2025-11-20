@@ -1,21 +1,13 @@
 import requests
 
-app = Flask(__name__)
-app.secret_key = 'secret_RknMrEzuRZlSNnelIZfZz81f47yBxpfAft29fbEgZBk'  # ⚠️ Change this
+SCOUT_API_KEY = "secret_-DrRVr2LhcZjgjflld_UeGe5Xc4hnma-XEyWbBYYavI"
+SCOUT_ENDPOINT = "https://api.scoutos.ai/v1/query"
 
-# ==== Scout Configuration ====
-SCOUT_API_KEY = "secret_RknMrEzuRZlSNnelIZfZz81f47yBxpfAft29fbEgZBk"  # ⚠️ Use env var in production
-SCOUT_COLLECTION_ID = "col_cme35qd2600j10gs6nacyppzf"
-SCOUT_TABLE_ID = "tbl_cme35qdbq00or0gs6nz4vgad3"
-SCOUT_API_BASE_URL = "https://api-prod.scoutos.com/v2"
-
-
-# Example: multiple relevant collections in Scout
+# Use the actual names from your Scout dashboard
 COLLECTIONS = [
-    "study_abroad_opportunities",
-    "international_internships",
-    "domestic_internships",
-    "funding_and_scholarships"
+    "Study Abroad",
+    "Internship",
+    "Usage"
 ]
 
 headers = {
@@ -36,4 +28,5 @@ def ask_scout(question):
         return f"[Error contacting ScoutOS: {response.text}]"
 
     data = response.json()
+
     return data.get("answer", "Sorry, I couldn’t find anything related to that.")
