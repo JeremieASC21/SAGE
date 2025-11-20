@@ -1,9 +1,14 @@
 import requests
 
-#change API key
+app = Flask(__name__)
+app.secret_key = 'secret_RknMrEzuRZlSNnelIZfZz81f47yBxpfAft29fbEgZBk'  # ⚠️ Change this
 
-SCOUT_API_KEY = "YOUR_SCOUT_API_KEY"
-SCOUT_ENDPOINT = "https://api.scoutos.ai/v1/query"
+# ==== Scout Configuration ====
+SCOUT_API_KEY = "secret_RknMrEzuRZlSNnelIZfZz81f47yBxpfAft29fbEgZBk"  # ⚠️ Use env var in production
+SCOUT_COLLECTION_ID = "col_cme35qd2600j10gs6nacyppzf"
+SCOUT_TABLE_ID = "tbl_cme35qdbq00or0gs6nz4vgad3"
+SCOUT_API_BASE_URL = "https://api-prod.scoutos.com/v2"
+
 
 # Example: multiple relevant collections in Scout
 COLLECTIONS = [
