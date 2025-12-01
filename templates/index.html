@@ -1,101 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>SAGE</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-
-    <style>
-        body {
-            background-image: url("/templates/static/img/backgroundSAGE.png");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-
-        .chat-container {
-            background: #F5F5F5;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-
-        h2 {
-            color: #D4AF37;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .chat-window {
-            /* check height with everyone*/
-            height: 100px; 
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 15px;
-            background: #fff;
-            border-radius: 5px;
-        }
-
-        .input-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        input {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: #D4AF37;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #B88E2F;
-        }
-
-        button1 {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            background: #F7A494;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-
-        button1:hover {
-            background: #d18a7c;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>SAGE</title>
 
-    <!-- Your own stylesheet, optional -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='static/css/style.css') }}">
+    <!-- Plain HTML path to your CSS -->
+    <link rel="stylesheet" href="static/css/style.css">
 
     <style>
         body {
-            background-image: url("{{ url_for('static', filename='static/img/backgroundSAGE.png') }}");
+            /* Plain HTML path to your background image */
+            background-image: url("static/img/backgroundSAGE.png");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -221,19 +136,24 @@
 
 <div class="chat-container">
     <h2>SAGE</h2>
+
+    <!-- Uses moreInfo() from chat.js -->
+    <button class="info-button" type="button" onclick="moreInfo()">
+        How to use this tool
+    </button>
+
+    <!-- JS will append .message.user / .message.bot here -->
     <div id="chat-window" class="chat-window"></div>
 
     <div class="input-container">
         <input type="text" id="user-input"
                placeholder="Ask about study abroad or internships...">
+        <!-- Uses sendMessage() from chat.js -->
         <button type="button" onclick="sendMessage()">Send</button>
-    </div>
-    <div class = "right-corner">
-        <button1 onclick="moreInfo()">Click Here for More Information on how to use this tool!</button>
     </div>
 </div>
 
-<!-- Your Scout-powered SAGE logic -->
-<script src="{{ url_for('static', filename='static/js/chat.js') }}"></script>
+<!-- Plain HTML path to your JS -->
+<script src="/static/js/chat.js"></script>
 </body>
 </html>

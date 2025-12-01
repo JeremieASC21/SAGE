@@ -1,15 +1,12 @@
-// ============================================================================
-// PART 1: ScoutApi client
-// ============================================================================
+console.log("SAGE chat.js loaded");
 
+// ================= ScoutApi client =================
 class ScoutApi {
-    constructor(copilotId, environment = 'production') {
-        if (!copilotId) {
-            throw new Error("ScoutApi: copilotId is required.");
-        }
+    constructor(copilotId, environment = "production") {
+        if (!copilotId) throw new Error("ScoutApi: copilotId is required.");
         this.copilotId = copilotId;
         this.environment = environment;
-        this.baseUrl = this.environment === 'production'
+        this.baseUrl = this.environment === "production"
             ? "https://api-prod.scoutos.com"
             : "https://workflow-service-535536037740.us-central1.run.app";
         this.v1Url = "https://api-prod.scoutos.com";
@@ -27,12 +24,11 @@ class ScoutApi {
 
     async sendMessage(message, options = {}) {
         const { stream = true, metadata = {}, chat_history = [] } = options;
-
         await this._checkToken();
 
         const workflowId = this.copilotConfig?.workflow_id;
         if (!workflowId) {
-            throw new Error("Could not find 'workflow_id' in the fetched copilot configuration.");
+            throw new Error("Could not find 'workflow_id' in copilot config.");
         }
 
         const params = new URLSearchParams({
@@ -45,32 +41,30 @@ class ScoutApi {
         const payload = {
             inputs: {
                 user_message: message,
-                chat_history: chat_history,
-                metadata: metadata
+                chat_history,
+                metadata
             },
             streaming: stream
         };
 
         const response = await fetch(apiUrl, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${this.token}`
             },
             body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
-            let errorBody;
+            let body;
             try {
-                errorBody = await response.clone().json();
-            } catch (e) {
-                errorBody = await response.text();
+                body = await response.clone().json();
+            } catch {
+                body = await response.text();
             }
-            console.error("API Error Response:", errorBody);
-            throw new Error(
-                `API request failed with status ${response.status}: ${JSON.stringify(errorBody)}`
-            );
+            console.error("API Error Response:", body);
+            throw new Error(`API request failed: ${response.status}`);
         }
 
         return stream ? response.body : response.json();
@@ -79,7 +73,7 @@ class ScoutApi {
     async parseSseStream(stream, onMessage) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
-        let buffer = '';
+        let buffer = "";
 
         while (true) {
             const { done, value } = await reader.read();
@@ -88,23 +82,21 @@ class ScoutApi {
             buffer += decoder.decode(value, { stream: true });
 
             let boundary;
-            while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+            while ((boundary = buffer.indexOf("\n\n")) !== -1) {
                 const message = buffer.slice(0, boundary);
                 buffer = buffer.slice(boundary + 2);
 
                 const dataLine = message
-                    .split('\n')
-                    .find(line => line.startsWith('data:'));
+                    .split("\n")
+                    .find(line => line.startsWith("data:"));
 
                 if (dataLine) {
                     const jsonString = dataLine.substring(6);
                     try {
                         const dataObject = JSON.parse(jsonString);
-                        if (onMessage) {
-                            onMessage(dataObject);
-                        }
+                        if (onMessage) onMessage(dataObject);
                     } catch (e) {
-                        console.error("Failed to parse SSE data JSON:", jsonString, e);
+                        console.error("Failed to parse SSE JSON:", jsonString, e);
                     }
                 }
             }
@@ -112,42 +104,24 @@ class ScoutApi {
     }
 
     async _fetchToken() {
-        try {
-            const tokenUrl = `${this.v1Url}/v1/copilot/get-ingredient`;
-            const response = await fetch(tokenUrl, { method: "GET" });
-
-            if (!response.ok) {
-                throw new Error(`Token fetch failed: ${response.statusText}`);
-            }
-
-            const { token } = await response.json();
-            this.token = token;
-        } catch (error) {
-            console.error("Error fetching token:", error);
-            throw error;
-        }
+        const tokenUrl = `${this.v1Url}/v1/copilot/get-ingredient`;
+        const res = await fetch(tokenUrl, { method: "GET" });
+        if (!res.ok) throw new Error(`Token fetch failed: ${res.statusText}`);
+        const { token } = await res.json();
+        this.token = token;
     }
 
     async _fetchCopilotConfig() {
-        try {
-            const configUrl = `${this.baseUrl}/v2/copilots/${this.copilotId}`;
-            const response = await fetch(configUrl, { method: "GET" });
-
-            if (!response.ok) {
-                throw new Error(`Config fetch failed: ${response.statusText}`);
-            }
-
-            const jsonResponse = await response.json();
-            this.copilotConfig = jsonResponse.data.copilot_config;
-        } catch (error) {
-            console.error("Error fetching config:", error);
-            throw error;
-        }
+        const configUrl = `${this.baseUrl}/v2/copilots/${this.copilotId}`;
+        const res = await fetch(configUrl, { method: "GET" });
+        if (!res.ok) throw new Error(`Config fetch failed: ${res.statusText}`);
+        const json = await res.json();
+        this.copilotConfig = json.data.copilot_config;
     }
 
     async _checkToken() {
         if (!this._isJwtValid(this.token)) {
-            console.log("Token expired or invalid, fetching a new one.");
+            console.log("Token expired/invalid, fetching a new one.");
             await this._fetchToken();
         }
     }
@@ -156,25 +130,23 @@ class ScoutApi {
         if (!token) return false;
         try {
             const payload = JSON.parse(atob(token.split(".")[1]));
-            if (!payload || typeof payload.exp !== 'number') return false;
-            const isExpired = (Date.now() /1000) >= payload.exp;
-            return !isExpired;
-        } catch (error) {
+            if (!payload || typeof payload.exp !== "number") return false;
+            return (Date.now() / 1000) < payload.exp;
+        } catch {
             return false;
         }
     }
 
     _getOrSetUserId() {
-        const STORAGE_KEY = "scout_user_id";
+        const KEY = "scout_user_id";
         try {
-            let userId = localStorage.getItem(STORAGE_KEY);
-            if (!userId) {
-                userId = this._generateUniqueId();
-                localStorage.setItem(STORAGE_KEY, userId);
+            let id = localStorage.getItem(KEY);
+            if (!id) {
+                id = this._generateUniqueId();
+                localStorage.setItem(KEY, id);
             }
-            return userId;
-        } catch (error) {
-            console.warn("Could not access localStorage. Using a temporary user ID.");
+            return id;
+        } catch {
             return this._generateUniqueId();
         }
     }
@@ -183,53 +155,33 @@ class ScoutApi {
         if (window.crypto && window.crypto.randomUUID) {
             return window.crypto.randomUUID();
         }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
             const r = Math.random() * 16 | 0;
-            const v = c == 'x' ? r : (r & 0x3 | 0x8);
+            const v = c === "x" ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
 }
 
-// ============================================================================
-// PART 2: SAGE Chat Logic (Your UI)
-// ============================================================================
-
-// 🔥 YOUR COPILOT ID
+// ============== SAGE chat wiring ==============
 const COPILOT_ID = "copilot_cmhwre2zi00010hs6zovbwgah";
 
 let scoutApi = null;
 let chatHistory = [];
+let chatWindowEl, userInputEl, sendButtonEl;
 
-let chatWindowEl;
-let userInputEl;
-let sendButtonEl;
-
-// Load script helper (for marked + DOMPurify)
+// load marked + DOMPurify
 function loadScript(src) {
     return new Promise((resolve, reject) => {
-        if (document.querySelector(`script[src="${src}"]`)) {
-            resolve();
-            return;
-        }
-        const script = document.createElement("script");
-        script.src = src;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-        document.head.appendChild(script);
+        if (document.querySelector(`script[src="${src}"]`)) return resolve();
+        const s = document.createElement("script");
+        s.src = src;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error(`Failed to load ${src}`));
+        document.head.appendChild(s);
     });
 }
 
-// Append safe HTML
-function addMessageHtml(html, sender) {
-    const div = document.createElement("div");
-    div.classList.add("message", sender);
-    div.innerHTML = html;
-    chatWindowEl.appendChild(div);
-    chatWindowEl.scrollTop = chatWindowEl.scrollHeight;
-}
-
-// Append plain text
 function addMessageText(text, sender) {
     const div = document.createElement("div");
     div.classList.add("message", sender);
@@ -257,13 +209,11 @@ function setUIBusy(isBusy) {
     }
 }
 
-// Main send message
 async function handleSendMessage() {
     const message = userInputEl.value.trim();
     if (!message || !scoutApi) return;
 
     addMessageText(message, "user");
-
     userInputEl.value = "";
     setUIBusy(true);
 
@@ -276,9 +226,9 @@ async function handleSendMessage() {
             chat_history: [...chatHistory]
         });
 
-        const handleMessage = (dataObject) => {
-            const eventName = dataObject?.event_type;
-            const eventData = dataObject?.data;
+        const handleMessage = (data) => {
+            const eventName = data?.event_type;
+            const eventData = data?.data;
 
             if (
                 eventName === "block_state_updated" &&
@@ -304,38 +254,42 @@ async function handleSendMessage() {
             chatHistory.push({ role: "human", content: message });
             chatHistory.push({ role: "ai", content: fullMarkdown });
         }
-
-    } catch (error) {
-        aiBubble.innerHTML = `<b>Error:</b> ${error.message}`;
+    } catch (err) {
+        console.error("Error during send:", err);
+        aiBubble.innerHTML = `<b>Error:</b> ${err.message}`;
     } finally {
         setUIBusy(false);
     }
 }
 
-// Make it callable from HTML
+// expose to global so onclick can find it
 function sendMessage() {
     handleSendMessage();
 }
 window.sendMessage = sendMessage;
 
-// Info popup
 function moreInfo() {
     alert(
         "Welcome to SAGE 🎓\n\n" +
-        "Ask me about internships, study abroad, or how to use this tool.\n\n" +
+        "Ask me about internships, study abroad, and how to use this tool.\n\n" +
         "Examples:\n" +
         "• What internships are available for CS majors?\n" +
         "• When are study abroad deadlines?\n" +
-        "• How do I improve my resume?"
+        "• How can I improve my resume?"
     );
 }
 window.moreInfo = moreInfo;
 
-// Initialize
+// init
 document.addEventListener("DOMContentLoaded", async () => {
     chatWindowEl = document.getElementById("chat-window");
     userInputEl = document.getElementById("user-input");
     sendButtonEl = document.querySelector(".input-container button");
+
+    if (!chatWindowEl || !userInputEl || !sendButtonEl) {
+        console.error("SAGE: missing DOM elements");
+        return;
+    }
 
     setUIBusy(true);
 
@@ -352,10 +306,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Hi, I’m SAGE! Ask me about internships, study abroad, or how to use this tool.",
             "bot"
         );
-
     } catch (err) {
-        addMessageHtml(
-            "<b>Error:</b> Unable to initialize SAGE. Check your Copilot ID or network.",
+        console.error("Init error:", err);
+        addMessageText(
+            "Error: unable to initialize SAGE. Check your internet connection and Copilot ID.",
             "bot"
         );
     } finally {
