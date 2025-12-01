@@ -1,19 +1,10 @@
-from flask import Flask, render_template, request, jsonify
-from scout_client import ask_scout
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")  # FIXED
-
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_message = request.json.get("message")
-
-    bot_reply = ask_scout(user_message)
-
-    return jsonify({"reply": bot_reply})
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
