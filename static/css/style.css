@@ -44,3 +44,49 @@ input {
     flex-grow: 1;
     padding: 10px;
 }
+
+/* Navbar styling */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7); /* semi-transparent over background image */
+    padding: 10px 40px;
+    z-index: 1000;
+}
+
+/* Remove bullets and lay items out horizontally */
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Space out list items a bit */
+nav li {
+    margin: 0;
+}
+
+/* Link appearance */
+nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+}
+
+/* Hover effect with your gold accent color */
+nav a:hover {
+    color: #D4AF37;
+}
+
+/* Add top padding so content isn't hidden behind fixed nav */
+body {
+    padding-top: 60px; /* adjust if navbar height changes */
+}
