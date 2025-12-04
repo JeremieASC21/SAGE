@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About SAGE</title>
+    <link rel="stylesheet" href="static/css/style.css">
+
+    <style>
+        body {
+            background-image: url("static/img/backgroundSAGE.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 60px;
+            font-family: Arial, sans-serif;
+        }
+
+        .info-container {
+            background: #F5F5F5;
+            width: 100%;
+            max-width: 650px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.12);
+        }
+
+        .info-container h2 {
+            text-align: center;
+            color: #D4AF37;
+            margin-bottom: 10px;
+        }
+
+        .section-block {
+            background: #ffffff;
+            padding: 15px 18px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 16px;
+        }
+
+        .section-block h3 {
+            margin: 0 0 8px 0;
+            color: #000000;
+            font-size: 1rem;
+        }
+
+        .section-block p {
+            margin: 4px 0;
+            line-height: 1.45;
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        .section-block ul {
+            margin: 6px 0 6px 18px;
+            padding: 0;
+        }
+
+        .section-block li {
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        .section-block p span.label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<nav>   
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('about_us') }}">About Us</a></li>
+        <li><a href="{{ url_for('sage') }}">SAGE</a></li>
+    </ul>
+</nav>
+
+<div class="info-container">
+    <h2>About SAGE</h2>
+    <div class="section-block">
+        <h3>What is SAGE?</h3>
+        <p>
+        SAGE is a UW-Madison study abroad chatbot created to help students explore international programs that fit their interests.
+        It uses information like your major, preferred country, and preferred language to match you with options that make sense academically and personally.
+        The chatbot is designed to give students a simple and supportive way to learn about study abroad opportunities.
+        Its goal is to make the decision process easier and less overwhelming.
+        </p>
+    </div>
+    <div class="section-block">
+        <h3>What can SAGE do?</h3>
+        <ul>
+            <li>Recommend study abroad programs based on your major or academic goals.</li>
+            <li>Help you explore countries and languages you are interested in.</li>
+            <li>Explain program requirements, length, and general expectations.</li>
+            <li>Give guidance on what types of programs might be a good match for you.</li>
+            <li>Answer questions about the study abroad process and help you compare options.</li>   
+        </ul>
+    </div>
+    <div class="section-block">
+        <h3>How do I use it?</h3>
+        <p>
+    To use SAGE, type in your major, the countries or languages you're interested in, or any specific preferences you have.
+    The chatbot will then suggest study abroad programs that align with your academic path and personal interests.
+    You can ask follow-up questions or explore different options to see what fits you best.
+    The more detail you provide, the more personalized your recommendations will be.
+        </p>
+    </div>
+</div>
+</body>
+</html>
