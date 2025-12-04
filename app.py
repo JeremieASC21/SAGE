@@ -6,13 +6,19 @@ from sage_prompt import SAGE_SYSTEM_PROMPT
 app = Flask(__name__)
 
 # Initialize OpenAI client
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+client = OpenAI()
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route('/about-us')
+def about_us():
+    return render_template('about-us.html')
+
+@app.route('/sage')
+def sage():
+    return render_template('sage.html')
 
 
 @app.route("/chat", methods=["POST"])
