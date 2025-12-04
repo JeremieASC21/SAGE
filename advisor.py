@@ -2,100 +2,99 @@
 from typing import List, Dict
 from programs import PROGRAMS
 
+def normalize(text: str) -> str:
+    return text.lower().strip()
 
 ACADEMIC_SYNONYMS = {
-    "biology": ["bio", "life science", "wildlife", "ecology", "biodiversity", "zoology"],
-    "engineering": ["engineer", "stem", "tech", "technology"],
-    "business": ["marketing", "management", "finance"],
-    "public health": ["global health", "health", "community health"],
+    "biology": ["biology", "bio", "zoology", "life science", "life sciences"],
+    "computer science": ["computer science", "cs", "comp sci", "software"],
+    "public health": ["public health", "global health", "health"],
+    "environmental studies": ["environmental studies", "environment science", "ecology"],
+    "spanish": ["spanish", "español", "spanish language"],
 }
+
 REGION_SYNONYMS = {
-    "europe": ["europe", "european", "italy", "denmark", "copenhagen", "prague"],
-    "latin america": ["latin america", "south america", "argentina", "buenos aires"],
-    "tropical": ["tropical", "panama", "costa rica", "bocas del toro"],
-    "scandinavia": ["scandinavia", "denmark", "copenhagen"],
+    "europe": ["europe", "european"],
+    "latin america": ["latin america", "latam", "south america"],
+    "scandinavia": ["scandinavia", "nordic", "denmark", "copenhagen"],
+    "australia": ["australia", "aussie"],
+    "italy": ["italy", "italian", "rome"],
+    "prague": ["prague", "czech republic"],
+    "costa rica": ["costa rica", "san jose", "monteverde"],
+    "panama": ["panama", "bocas del toro"],
 }
 
-
-def normalize(text: str) -> str:
-    return text.lower()
+INTERNSHIP_KEYWORDS = [
+    "internship",
+    "internships",
+    "interning",
+    "co-op",
+    "co op",
+    "coop",
+    "placement",
+    "work experience",
+    "professional experience",
+]
 
 
 def search_programs(query: str) -> List[Dict]:
     """
-    Hybrid search over the PROGRAMS dictionary based on keywords + synonyms.
+    Hybrid search over the PROGRAMS dictionary based on keywords, synonyms, and
+    optionally internship interest.
     """
     q = normalize(query)
     results = []
+
+    # Detect if the user is clearly asking about internships
+    internship_interest = any(word in q for word in INTERNSHIP_KEYWORDS)
+
     for prog in PROGRAMS.values():
         base_score = 0
+        name_text = normalize(prog["name"])
+        loc_text = normalize(prog["location"])
+        tags = prog.get("tags", {})
+        academics_tags = " ".join(tags.get("academics", [])).lower()
+        themes_tags = " ".join(tags.get("themes", [])).lower()
+        prog_type = prog.get("type", "study_abroad")
+
         # Direct name/location match
-        if normalize(prog["name"]).find(q) != -1:
+        if q and name_text.find(q) != -1:
             base_score += 3
-        if normalize(prog["location"]).find(q) != -1:
+        if q and loc_text.find(q) != -1:
             base_score += 2
+
+        # Token-based partial match
+        for token in q.split():
+            if token and token in name_text:
+                base_score += 1
+            if token and token in loc_text:
+                base_score += 1
+
         # Tag-based scoring
-        for group, tag_list in prog["tags"].items():
+        for group, tag_list in tags.items():
             for tag in tag_list:
                 if normalize(tag) in q:
                     base_score += 2
+
         # Academic synonyms
         for key, syns in ACADEMIC_SYNONYMS.items():
-            if any(s in q for s in syns):
-                if key in " ".join(prog["tags"].get("academics", [])).lower():
-                    base_score += 2
+            if any(s in q for s in syns) and key in academics_tags:
+                base_score += 2
+
         # Region synonyms
         for key, syns in REGION_SYNONYMS.items():
-            if any(s in q for s in syns):
-                if any(k in prog["location"].lower() for k in syns):
-                    base_score += 1
+            if any(s in q for s in syns) and any(k in loc_text for k in syns):
+                base_score += 1
+
+        # Internship boost
+        if internship_interest:
+            if prog_type in ("internship", "study_abroad+internship"):
+                base_score += 3
+            if any(word in themes_tags for word in ["internship", "internship-style", "career", "professional"]):
+                base_score += 2
+
         if base_score > 0:
             results.append((base_score, prog))
+
     results.sort(key=lambda x: x[0], reverse=True)
     return [p for score, p in results]
-
-
-def format_program_sheet(prog: Dict) -> str:
-    """Return the advising-sheet style text for a single program."""
-    summary = prog.get("summary") or "Program summary to be added."
-    learning_outcomes = prog.get("learning_outcomes") or []
-    recommended_majors = prog.get("recommended_majors") or []
-    difficulty = prog.get("difficulty") or "To be determined"
-    living_env = prog.get("living_environment") or "To be added"
-    cost_notes = prog.get("cost_accessibility") or "To be added"
-    lines = []
-
-    lines.append("====================================================")
-    lines.append(f"PROGRAM: {prog['name']}")
-    lines.append(f"LOCATION: {prog['location']}")
-    lines.append("====================================================\n")
-    lines.append("■ Program Overview")
-    lines.append(summary.strip() + "\n")
-    lines.append("----------------------------------------------------\n")
-    lines.append("■ Learning Outcomes")
-    if learning_outcomes:
-        for lo in learning_outcomes:
-            lines.append(f" {lo}")
-    # Blank bullets for manual editing
-    lines.append(" ")
-    lines.append(" ")
-    lines.append("\n")
-    lines.append("■ Recommended Majors / Academic Fit")
-    if recommended_majors:
-        for m in recommended_majors:
-            lines.append(f" {m}")
-    lines.append(" ")
-    lines.append("\n")
-    lines.append("■ Difficulty / Rigor Level")
-    lines.append(difficulty + "\n")
-    lines.append("■ Living Environment")
-    lines.append(living_env + "\n")
-    lines.append("■ Cost & Accessibility Notes")
-    lines.append(cost_notes + "\n")
-    lines.append("====================================================")
-    return "\n".join(lines)
-
-
-def get_program_by_id(program_id: str) -> Dict:
-    """Helper to look up a program by its id string."""
-    return PROGRAMS.get(program_id)
