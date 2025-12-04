@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About SAGE</title>
+    <link rel="stylesheet" href="static/css/style.css">
+
+    <style>
+        body {
+            background-image: url("static/img/backgroundSAGE.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 60px;
+            font-family: Arial, sans-serif;
+        }
+
+        .info-container {
+            background: #F5F5F5;
+            width: 100%;
+            max-width: 650px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.12);
+        }
+
+        .info-container h2 {
+            text-align: center;
+            color: #D4AF37;
+            margin-bottom: 10px;
+        }
+
+        .section-block {
+            background: #ffffff;
+            padding: 15px 18px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 16px;
+        }
+
+        .section-block h3 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .section-block p {
+            margin: 4px 0;
+            line-height: 1.45;
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        .section-block ul {
+            margin: 6px 0 6px 18px;
+            padding: 0;
+        }
+
+        .section-block li {
+            margin-bottom: 5px;
+            font-size: 0.93rem;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .gold-btn, .pink-btn {
+            padding: 10px 22px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: white;
+            display: inline-block;
+        }
+
+        .gold-btn {
+            background: #D4AF37;
+        }
+
+        .gold-btn:hover {
+            background: #B88E2F;
+        }
+
+        .pink-btn {
+            background: #F7A494;
+        }
+
+        .pink-btn:hover {
+            background: #d18a7c;
+        }
+    </style>
+</head>
+
+<body>
+<nav>   
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('about_us') }}">About Us</a></li>
+        <li><a href="{{ url_for('sage') }}">SAGE</a></li>
+    </ul>
+</nav>
+
+</body>
+</html>
