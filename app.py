@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Initialize OpenAI client
 client = OpenAI(
-    api_key="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"
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 @app.route("/")
